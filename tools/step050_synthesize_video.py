@@ -296,11 +296,20 @@ def add_subtitles(video_path, srt_path, output_path, subtitle_filter=None, metho
             # 使用 ffmpeg 添加字幕
             try:
                 # 获取字体文件的绝对路径
-                font_dir = os.path.abspath("./font")
+                # 使用项目根目录下的 font 目录，确保能找到 SimHei.ttf
+                font_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "font"))
 
                 # 构建字幕过滤器，使用文件名引用
                 style = "FontName=SimHei,FontSize=15,PrimaryColour=&HFFFFFF,OutlineColour=&H000000,Outline=2,WrapStyle=2"
-                filter_option = f"subtitles={temp_srt_path}:force_style='{style}'"
+                # 处理Windows路径，以避免FFmpeg滤镜将盘符中的冒号当作分隔符
+                def _ffmpeg_escape_path(p):
+                    p = os.path.abspath(p).replace('\\', '/')
+                    p = p.replace(':', r'\:')
+                    return p
+                escaped_srt = _ffmpeg_escape_path(temp_srt_path)
+                escaped_fontsdir = _ffmpeg_escape_path(font_dir)
+                # 显式指定filename和fontsdir，并为force_style加引号
+                filter_option = f"subtitles=filename='{escaped_srt}':fontsdir='{escaped_fontsdir}':force_style='{style}'"
 
                 # 构建命令
                 command = [

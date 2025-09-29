@@ -8,6 +8,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+python/
+ffmpeg/
+cache/
 build/
 develop-eggs/
 dist/
